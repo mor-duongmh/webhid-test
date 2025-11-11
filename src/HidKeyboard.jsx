@@ -1,10 +1,28 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 export default function HidKeyboard() {
   const [supported, setSupported] = useState(false);
   const [value, setValue] = useState("");
   const [devices, setDevices] = useState([]);
   const [connectedDevice, setConnectedDevice] = useState(null);
   const lastReportRef = useRef(null);
+
+  const attachDevice = useCallback(async (device) => {
+    if (!device) return;
+    try {
+      if (!device.opened) await device.open();
+      console.log(device);
+      setConnectedDevice(device);
+      device.addEventListener("inputreport", onInputReport);
+      console.log(
+        "Attached device:",
+        device.productName,
+        device.vendorId,
+        device.productId
+      );
+    } catch (err) {
+      console.error("attachDevice error:", err);
+    }
+  }, []);
 
   useEffect(() => {
     setSupported(Boolean(navigator.hid));
@@ -29,7 +47,7 @@ export default function HidKeyboard() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [attachDevice]);
 
   async function requestDevice() {
     if (!navigator.hid) {
@@ -52,23 +70,6 @@ export default function HidKeyboard() {
     }
   }
 
-  async function attachDevice(device) {
-    if (!device) return;
-    try {
-      if (!device.opened) await device.open();
-      console.log(device);
-      setConnectedDevice(device);
-      device.addEventListener("inputreport", onInputReport);
-      console.log(
-        "Attached device:",
-        device.productName,
-        device.vendorId,
-        device.productId
-      );
-    } catch (err) {
-      console.error("attachDevice error:", err);
-    }
-  }
 
   function onInputReport(event) {
     const { device, reportId, data } = event;
