@@ -23,7 +23,9 @@ export default function HidKeyboard() {
       console.error("attachDevice error:", err);
     }
   }, []);
-
+  const handleEnter = () => {
+    alert(`${value}`);
+  };
   useEffect(() => {
     setSupported(Boolean(navigator.hid));
     async function fetchDevices() {
@@ -48,7 +50,19 @@ export default function HidKeyboard() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [attachDevice]);
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === "Enter") {
+        handleEnter();
+      }
+    };
 
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [value]);
   async function requestDevice() {
     if (!navigator.hid) {
       alert("WebHID not supported in this browser.");
@@ -69,7 +83,6 @@ export default function HidKeyboard() {
       console.error("requestDevice error:", err);
     }
   }
-
 
   function onInputReport(event) {
     const { device, reportId, data } = event;
@@ -104,39 +117,13 @@ export default function HidKeyboard() {
   return (
     <div style={{ padding: 16 }}>
       <h3>WebHID Keyboard demo</h3>
-      <p>WebHID supported: {supported ? "yes" : "no"}</p>
-
-      <div style={{ marginBottom: 8 }}>
-        <button onClick={requestDevice}>Connect HID device</button>
-        <button
-          onClick={disconnect}
-          disabled={!connectedDevice}
-          style={{ marginLeft: 8 }}
-        >
-          Disconnect
-        </button>
-      </div>
-      <div>{value}</div>
+      <h4>Barcode value below</h4>
+      <input value={value} />
+      <button onClick={handleEnter}>Show alert</button>
       {/* <div>
         <strong>Connected device:</strong>{" "}
         {connectedDevice ? `${connectedDevice.productName} (v:${connectedDevice.vendorId} p:${connectedDevice.productId})` : "None"}
       </div> */}
-
-      <div style={{ marginTop: 12 }}>
-        <strong>Lịch sử kết nối:</strong>
-        <ul>
-          {devices.length ? (
-            devices.map((d, i) => (
-              <li key={i}>
-                {d.productName || "(unnamed)"} — vendorId: {d.vendorId},
-                productId: {d.productId}
-              </li>
-            ))
-          ) : (
-            <li>No devices granted yet</li>
-          )}
-        </ul>
-      </div>
 
       {/* <div style={{ marginTop: 12 }}>
         <small>
