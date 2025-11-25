@@ -120,17 +120,6 @@ export default function HidKeyboard() {
       <h4>Barcode value below</h4>
       <input value={value} />
       <button onClick={handleEnter}>Show alert</button>
-      {/* <div>
-        <strong>Connected device:</strong>{" "}
-        {connectedDevice ? `${connectedDevice.productName} (v:${connectedDevice.vendorId} p:${connectedDevice.productId})` : "None"}
-      </div> */}
-
-      {/* <div style={{ marginTop: 12 }}>
-        <small>
-          Note: If your device doesn't produce the standard 8-byte keyboard report, inspect the raw
-          bytes in console and adapt parsing accordingly.
-        </small>
-      </div> */}
     </div>
   );
 }
